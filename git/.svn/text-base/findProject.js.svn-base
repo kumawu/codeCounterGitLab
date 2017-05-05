@@ -1,0 +1,136 @@
+var merge = require('../tools/merge')
+var gitlist = require('../config').gitlist;
+
+var gitlab = require('gitlab')({
+    url: 'http://git.intra.weibo.com',
+    token: 'tsvMf4sv_Kz7Uqo-wtrm'//6d8c83b5202961c7b87713632a9386c364345d15
+});
+var args = {}
+var members = {};
+var projects_rslt = [];
+var countDown = gitlist.length;
+// process.on('message',function(m){
+//     args = m;
+//     start();
+// })
+
+module.exports = function(cb){
+    var projects_lst = [];
+    gitlab.projects.all(function(projects) {
+        // console.log(projects)
+        for (var i = 0,countDown=l=projects.length; i < l; i++) {
+            // console.log("#" + projects[i].id + ": " + projects[i].name + ", path: " + projects[i].path + ", default_branch: " + projects[i].default_branch + ", private: " + projects[i]["private"] + ", date: " + projects[i].created_at);
+            projects_lst.push({
+                'id':projects[i].id,
+                'name':projects[i].name,
+                'description':projects[i].description,
+                'web_url':projects[i].web_url,
+                'name_with_namespace':projects[i].name_with_namespace,
+                'created_at':projects[i].created_at,
+                'creator_id':projects[i].creator_id,
+                'tag_list':projects[i].tag_list,
+                "productLine":projects[i].tag_list[0]||"m99_php"
+            });
+            
+            var projectId = projects[i].id;
+            // gitlab.projects.repository.listCommits(projectId, function(list){
+            //     console.log(list);
+            //     // if(!!list){
+            //     //     list.forEach(function(item){
+            //     //         // console.log(item)
+            //     //         gitlab.projects.repository.showBranch(projectId,item.name,function(info){
+            //     //             console.log(info);
+            //     //         })
+            //     //     })
+            //     // }
+            // })
+            // findCommits(projects[i],function(){
+            //     countDown--;
+            //     if(countDown == 0){
+            //         // console.log(members)
+            //         process.send({members:members,projects:projects_rslt})
+
+            //     }
+            // })
+        }
+        cb(projects_lst);
+        // console.log('aaaaaaaaa',projects_lst);
+
+    });
+}
+
+
+// var gitlist = [
+// {"id":3583,"productLine":"m13","name":"pagecaster","description":"基于mindpage的新项目","web_url":"http://git.intra.weibo.com/Ria/pagecaster","name_with_namespace":"Ria / pagecaster","created_at":"2016-10-08T02:17:58.753Z","creator_id":1534,"tag_list":[]},
+// {"id":3532,"productLine":"m10","name":"enp_subscribe_m","description":"付费中心化移动端库","web_url":"http://git.intra.weibo.com/subscribe/enp_subscribe_m","name_with_namespace":"subscribe / enp_subscribe_m","created_at":"2016-09-21T09:11:08.635Z","creator_id":1178,"tag_list":["m10"]}
+// ]
+// gitlist.forEach(function(projects){
+    
+//    var projectId = projects.id;
+//         gitlab.projects.repository.listBranches(projectId, function(list){
+//             // console.log(list);
+//             if(!!list){
+//                 list.forEach(function(item){
+//                     // console.log(item);
+//                     gitlab.projects.repository.showBranch(projectId,item.name,function(branch){
+//                         // console.log('branch',branch);
+//                         gitlab.projects.listCommits(merge(projects,{ref_name:item.name}),function(commit){
+//                             console.log('commit',commit)
+//                         })
+//                     })
+//                 })
+//             }
+//             //listBranches
+//             //showBranch
+
+
+//         });
+// });
+// }
+
+
+function findCommits(project,cb){
+    // var month = (args.date.target.month.toString().length == 1)?'0'+args.date.target.month:args.date.target.month;
+    // var day = (args.date.target.day.toString().length == 1)?'0'+args.date.target.day:args.date.target.day;
+    // var now_month = (args.date.now.month.toString().length == 1)?'0'+args.date.now.month:args.date.now.month;
+    // var now_day = (args.date.now.day.toString().length == 1)?'0'+args.date.now.day:args.date.now.day;
+
+    gitlab.projects.listCommits(project,function(commits,params){
+        var add = del = 0;
+        // console.log('findCommits',project.id,project.name, commits instanceof Array)
+        if(!commits||commits.length == 0){cb();return;}
+        var countdown=commits.length;
+        commits.forEach(function(item,index) {
+            gitlab.projects.repository.showCommit(params.id, item.id, function(commit) {
+                var user = item.author_email.replace(/\@.*$/,'');
+                if(!commit){cb();return;}
+                // console.log(item)
+                countdown--;
+                add+=commit.stats.additions;
+                del+=commit.stats.deletions;
+                if(!members[user]){
+                    members[user] = {add:0,remove:0}
+                }
+                members[user]['add'] += commit.stats.additions;
+                members[user]['remove'] += commit.stats.deletions;
+                if(countdown == 0){
+                    console.log('id:',params.id,' ',params.name, params.tag_list,' add:',add,' del:',del)
+                    projects_rslt.push({'id':params.id,name:params.name,tags:params.tag_list,add:add,'remove':del})
+                    cb();
+                }
+            });
+        })
+    })
+}
+
+// gitlab.projects.listMembers({id:'3532'},function(members){
+//     // console.log("=== commits ===", commits instanceof Array,commits);
+//                 console.log("=== members ===");
+//                 console.log(members);
+// })
+
+// gitlab.projects.repository.showCommit(3532,'e4d1900870c89b9ba37a0fd6f9e6c08b0debdbcd', function(commit) {
+//     console.log("=== commit ===");
+//     console.log(commit);
+// });
+

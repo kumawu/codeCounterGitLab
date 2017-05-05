@@ -1,0 +1,18 @@
+doctype html
+html(lang='en')
+  head
+    title History
+    script(src='jquery-3.1.0.min.js')
+  body(style='font-family:"微软雅黑,Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";')
+    select#history_select(style="font-size:24px")
+      each log in history
+        option(value='#{log.id}')= log.id
+    div#history
+      include ./views/history_item.jade
+script.
+  $('#history_select').change(function(){
+    console.log($(this).val())
+    $.get('/history/'+encodeURIComponent($(this).val()),function(res){
+      $('#history').html(res)
+    })
+  })

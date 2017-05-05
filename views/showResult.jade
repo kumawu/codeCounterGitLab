@@ -1,0 +1,52 @@
+p(style='text-align:center')
+  strong
+    | 代码统计报告—（
+    span= beforeDate.m
+    | 月
+    span= beforeDate.d
+    | 日—
+    span= date.m
+    | 月
+    span= date.d
+    | 日）
+table(border='1', cellpadding='1', cellspacing='1', style='border-collapse:collapse')
+  tbody
+    tr(height='23', style='height:17.4pt;background: #000;color: #fff;font-weight: bold;')
+      td(height='23',style='width:200px') 项目
+      td(style='width:100px') 增加行数
+      td(style='width:100px') 删除行数
+      td(style='width:100px') 净增量
+      td(style='width:150px') PL模块增量
+      td(style='width:100px') PL总数
+    - var add_count=remove_count=cute_count = 0;
+    each item in data
+      if item.add != 0
+        tr(height='23', style='height:17.4pt')
+          td(height='23', style='height:17.4pt;border-top:none')= item.name
+          td(align='right')= item.add
+          td(align='right')= item.remove
+          td(align='right')= item.add - item.remove
+          td(align='right')= item.plIncrement
+          td(align='right')= item.plAll
+        - add_count+=item.add*1
+        - remove_count+=item.remove*1
+        - cute_count=cute_count*1+item.add*1-item.remove*1
+    tr(height='23', style='height:17.4pt')
+        td(height='23', style='height:17.4pt;border-top:none')
+        td(align='right')= add_count
+        td(align='right')= remove_count
+        td(align='right')= cute_count
+        td(align='right')
+        td(align='right')
+br
+table(border='1', cellpadding='1', cellspacing='1', style='border-collapse:collapse')
+  tbody
+    tr(height='23', style='height:17.4pt;background: #000;color: #fff;font-weight: bold;')
+      td(style='width:100px') 用户
+      td(style='width:100px') 增加行数
+      td(style='width:100px') 删除行数
+    each item, key in user
+      tr(height='23', style='height:17.4pt')
+        td(height='23', style='height:17.4pt;border-top:none')= key
+        td(align='right')= item.add
+        td(align='right')= item.remove

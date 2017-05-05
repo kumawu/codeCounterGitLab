@@ -1,0 +1,77 @@
+doctype html
+html(lang='en')
+  head
+    title Jade
+  body(style='font-family:"微软雅黑,Microsoft YaHei",Arial,Helvetica,sans-serif,"宋体";')
+    p(style='text-align:center')
+      strong
+        | 前端组代码统计报告—（
+        span= beforeDate.y
+        | 年
+        span= beforeDate.m
+        | 月
+        span= beforeDate.d
+        | 日—
+        span= date.y
+        | 年
+        span= date.m
+        | 月
+        span= date.d
+        | 日）
+   
+    table(border='1', cellpadding='1', cellspacing='1', width='717', style='border-collapse:collapse')
+      tbody
+        tr(height='23', style='height:17.4pt;background: #000;color: #fff;font-weight: bold;')
+          td(height='23',width='10') 项目
+          td(width='10', style='border-top:none;border-left:none') 增加行数
+          td(width='10', style='border-top:none;border-left:none') 删除行数
+          td(width='10', style='border-top:none;border-left:none') 净增量
+          td(width='30', style='border-top:none;border-left:none') 分支操作数目
+          td(width='60', style='border-top:none;border-left:none') 提交数
+          td(width='60', style='border-top:none;border-left:none') 行数提交比
+        - var add_count=remove_count=cute_count = 0;
+        each item in data
+          if item.add != 0
+            tr(height='23', style='height:17.4pt')
+              td(height='23', style='height:17.4pt;border-top:none')= item.name
+              td(align='right', style='border-top:none;border-left:none')= item.add
+              td(align='right', style='border-top:none;border-left:none')= item.remove
+              td(align='right', style='border-top:none;border-left:none')= item.add - item.remove
+              td(align='right', style='border-top:none;border-left:none')= item.branches
+              td(align='right', style='border-top:none;border-left:none')= item.submitCount
+              td(align='right', style='border-top:none;border-left:none')= (item.add/item.submitCount).toFixed(2)
+            - add_count+=item.add*1
+            - remove_count+=item.remove*1
+            - cute_count=cute_count*1+item.add*1-item.remove*1
+        tr(height='23', style='height:17.4pt')
+            td(height='23', style='height:17.4pt;border-top:none')
+            td(align='right', style='border-top:none;border-left:none')= add_count
+            td(align='right', style='border-top:none;border-left:none')= remove_count
+            td(align='right', style='border-top:none;border-left:none')= cute_count
+            td(align='right', style='border-top:none;border-left:none')
+            td(align='right', style='border-top:none;border-left:none')
+            td(align='right', style='border-top:none;border-left:none')
+    br
+    table(border='1', cellpadding='1', cellspacing='1', width='717', style='border-collapse:collapse')
+      tbody
+        tr(height='23', style='height:17.4pt;background: #000;color: #fff;font-weight: bold;')
+          td(width='10', style='border-top:none;border-left:none') 用户
+          td(width='10', style='border-top:none;border-left:none') 增加行数
+          td(width='10', style='border-top:none;border-left:none') 删除行数
+        each item, key in user
+          tr(height='23', style='height:17.4pt')
+            td(height='23', style='height:17.4pt;border-top:none')= key
+            td(align='right', style='border-top:none;border-left:none')= item.add
+            td(align='right', style='border-top:none;border-left:none')= item.remove
+    br
+    table(border='1', cellpadding='1', cellspacing='1', width='717', style='border-collapse:collapse')
+      tbody
+        tr(height='23', style='height:17.4pt;background: #000;color: #fff;font-weight: bold;')
+          td(width='10', style='border-top:none;border-left:none') 产品线
+          td(width='10', style='border-top:none;border-left:none') 增加行数
+          td(width='10', style='border-top:none;border-left:none') 提交数
+        each productLine, key1 in productLineResult
+          tr(height='23', style='height:17.4pt')
+            td(height='23', style='height:17.4pt;border-top:none')= key1
+            td(align='right', style='border-top:none;border-left:none')= productLine.add
+            td(align='right', style='border-top:none;border-left:none')= productLine.submitCount
